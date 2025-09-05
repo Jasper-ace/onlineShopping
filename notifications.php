@@ -33,14 +33,15 @@ if ($stmtComments) {
 
 // Fetch checkout notifications based on admin_id
 $queryCheckout = "
-    SELECT o.order_id, p.product_name, p.picture, o.name AS buyer_name, o.address, 
-           o.order_date, ci.quantity
-    FROM orders o 
-    JOIN cart ci ON o.user_id = ci.user_id 
-    JOIN products p ON ci.product_id = p.id 
+    SELECT o.order_id, p.product_name, p.picture, o.name AS buyer_name, 
+           o.address, o.order_date, oi.quantity
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    JOIN products p ON oi.product_id = p.id
     WHERE p.admin_id = ?  
     ORDER BY o.order_date DESC
 ";
+
 
 // Prepare and execute the checkout query
 $stmtCheckout = $conn->prepare($queryCheckout);
@@ -149,7 +150,7 @@ if ($stmtCheckout) {
         <?php else: ?>
             <p>No checkout notifications available.</p>
         <?php endif; ?>
-    </div>
+    </div
 
     <!-- Comments Section -->
     <div class="notification-section">

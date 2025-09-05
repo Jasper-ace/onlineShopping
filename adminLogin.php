@@ -49,131 +49,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-m5FqR6VMuIZu8hxvPZZRhtsDZHZBWvWn9bHs+7AuI7Nm5z2kbyGauAfLKhcoO9W6EKxGdMDPhqkmxupflEb1zQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background: white;
-            padding: 20px 30px 20px 20px; 
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
-        }
-
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-
-        label {
-            font-weight: bold;
-            margin-top: 10px;
-            display: block;
-            color: #555;
-        }
-
-        input[type="text"],
-        input[type="password"],
-        input[type="submit"] {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        input[type="submit"] {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #218838;
-        }
-
-        .eye-icon {
-            cursor: pointer;
-            position: absolute;
-            margin-left: -30px;
-            margin-top: 10px;
-            font-size: 18px;
-            color: #555;
-        }
-
-        .error {
-            color: red;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .form-group {
-            position: relative;
-        }
-
-        .link {
-            text-align: center;
-            margin-top: 20px;
-            color: #007bff;
-            cursor: pointer;
-            text-decoration: none; 
-        }
-
-        .link a {
-            text-decoration: none; 
-            color: #007bff; 
-        }
-
-        .link:hover a {
-            text-decoration: underline; 
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
-    <div class="container">
-        <h2>Admin Login</h2>
-        
-        <?php if (isset($error_message)): ?>
-            <p class="error"><?php echo $error_message; ?></p>
-        <?php endif; ?>
+<body class="bg-light d-flex justify-content-center align-items-center vh-100">
 
-        <form method="POST" action="">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
+  <div class="card shadow-lg p-4" style="width: 26rem;">
+    <h2 class="text-center mb-4">Admin Login</h2>
 
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-                <i class="fa-solid fa-eye eye-icon" onclick="togglePasswordVisibility('password')"></i>
-            </div>
+    <?php if (!empty($error_message)): ?>
+      <div class="alert alert-danger text-center"><?php echo $error_message; ?></div>
+    <?php endif; ?>
 
-            <input type="submit" value="Sign in">
-        </form>
-        <div class="link"><a href="adminSignup.php">Don't have an account? Sign Up</a></div> 
-    </div>
-    <script>
-        function togglePasswordVisibility(inputId) {
-            var input = document.getElementById(inputId);
-            if (input.type === "password") {
-                input.type = "text";
-            } else {
-                input.type = "password";
-            }
-        }
-    </script>
+    <form method="POST" action="">
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+      </div>
+
+      <div class="mb-3 position-relative">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+        <i class="fa-solid fa-eye position-absolute top-50 end-0 translate-middle-y me-3 text-secondary"
+           style="cursor:pointer;" onclick="togglePasswordVisibility('password')"></i>
+      </div>
+
+      <button type="submit" class="btn btn-success w-100">Sign In</button>
+    </form>
+
+    <p class="text-center mt-3">
+      <a href="adminSignup.php" class="text-decoration-none">Don't have an account? Sign Up</a>
+    </p>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function togglePasswordVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      input.type = input.type === "password" ? "text" : "password";
+    }
+  </script>
 </body>
 </html>

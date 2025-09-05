@@ -29,14 +29,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
 if (isset($_GET['delete_id'])) {
     $productId = $_GET['delete_id'];
 
-    $stmt = $conn->prepare("DELETE FROM products WHERE id = ? AND admin_id = ?"); 
-    $stmt->bind_param("ii", $productId, $_SESSION['admin_id']);
-    $stmt->execute();
-    $stmt->close();
+    // 1. Delete comments
+    $deleteComments = $conn->prepare("DELETE FROM comments WHERE product_id = ?");
+    $deleteComments->bind_param("i", $productId);
+    $deleteComments->execute();
+    $deleteComments->close();
+
+    // 2. Delete admin replies
+    $deleteReplies = $conn->prepare("DELETE FROM admin_reply WHERE product_id = ?");
+    $deleteReplies->bind_param("i", $productId);
+    $deleteReplies->execute();
+    $deleteReplies->close();
+
+    // 3. Delete messages
+    $deleteMessages = $conn->prepare("DELETE FROM messages WHERE product_id = ?");
+    $deleteMessages->bind_param("i", $productId);
+    $deleteMessages->execute();
+    $deleteMessages->close();
+
+    // 4. Delete the product itself
+    $deleteProduct = $conn->prepare("DELETE FROM products WHERE id = ? AND admin_id = ?");
+    $deleteProduct->bind_param("ii", $productId, $_SESSION['admin_id']);
+    $deleteProduct->execute();
+    $deleteProduct->close();
 
     header('Location: dashboard.php');
-    exit; 
+    exit;
 }
+
 
 $productToEdit = null; 
 if (isset($_GET['id'])) {
@@ -63,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_product'])) {
     } else {
         echo "Error: " . $stmt->error; 
     }
+    
     $stmt->close();
 
     header('Location: dashboard.php');
@@ -102,234 +123,132 @@ $comments = $commentsResult->fetch_all(MYSQLI_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-   <script>
-   
-   </script>
-   <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
 
-        h1, h2 {
-            color: #333;
-        }
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        img {
-            width: 100px;
-            height: auto;
-        }
-
-        .action-buttons a {
-            margin-right: 10px;
-            text-decoration: none;
-            color: blue;
-        }
-
-        .action-buttons a:hover {
-            text-decoration: underline;
-        }
-
-        form {
-            margin-bottom: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #fff;
-            padding: 20px 30px 20px 20px;
-        }
-
-        label {
-            display: block;
-            margin: 5px 0;
-        }
-
-        input[type="text"],
-        input[type="number"],
-        textarea {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-
-        .icon-container {
-            position: absolute;
-            top: 25px;
-            right: 70px; /* Adjusted to make room for notification bell */
-            font-size: 48px;
-            color: black;
-            text-decoration: none;
-        }
-
-        .icon-container:hover {
-            color: red;
-        }
-
-        .notification-bell {
-            position: absolute;
-            top: 25px;
-            right: 10px; /* Positioned to the right */
-            font-size: 48px;
-            color: black;
-            text-decoration: none;
-        }
-
-        .notification-bell:hover {
-            color: red;
-        }
-
-        .notification-count {
-            position: absolute;
-            top: 15px;
-            right: 25px; /* Adjust position relative to the bell icon */
-            background-color: red;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 6px;
-            font-size: 12px;
-        }
-        /* Chat Icon Container */
-.chat-icon-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #4CAF50; /* Green background */
-    color: white;
-    border-radius: 50%;
-    padding: 20px;
-    font-size: 36px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow */
-    z-index: 1000;
-    text-decoration: none; /* Remove underline */
-}
-
-.chat-icon-container:hover {
-    background-color: #45a049; /* Darker green on hover */
-}
-
-/* Chat Icon inside container */
-.chat-icon-container i {
-    margin: 0;
-}
-
-        
-    </style>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
-<body>
+<body class="bg-light">
 
-    <h1>Welcome to the Dashboard</h1>
-    <p>Your User ID is: <?php echo htmlspecialchars($_SESSION['admin_id']); ?></p>
-    
-    <!-- Chat Icon -->
-    <a href="chat_list.php" class="chat-icon-container">
-        <i class="fa-solid fa-comment"></i>
-    </a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success px-3">
+        <a class="navbar-brand fw-bold" href="#">Admin Dashboard</a>
 
+        <div class="ms-auto d-flex align-items-center">
+            <!-- Notification Bell -->
+            <a href="notifications.php" class="nav-link position-relative me-3 text-white">
+                <i class="fa-solid fa-bell fa-lg"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    <?php echo count($comments); ?>
+                </span>
+            </a>
 
-    <!-- Notification Bell -->
-    <a href="notifications.php" class="notification-bell">
-        <i class="fa-solid fa-bell"></i>
-        <span class="notification-count"><?php echo count($comments); ?></span> <!-- Change this number based on actual notifications -->
-    </a>
-    
-    <a href="logout.php" style="background-color: red; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">Log out</a>
+            <!-- Chat Icon -->
+            <a href="chat_list.php" class="nav-link me-3 text-white">
+                <i class="fa-solid fa-comment fa-lg"></i>
+            </a>
 
-    <a href="profile.php" class="icon-container">
-        <i class="fa-solid fa-user"></i>
-    </a>
+            <!-- Profile -->
+            <a href="profile.php" class="nav-link me-3 text-white">
+                <i class="fa-solid fa-user fa-lg"></i>
+            </a>
 
-    <h2><?php echo $productToEdit ? 'Update Product' : 'Add New Product'; ?></h2>
-    <form method="POST" action="">
-        <?php if ($productToEdit): ?>
-            <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($productToEdit['id']); ?>">
-        <?php endif; ?>
-        
-        <label for="product_name">Product Name:</label>
-        <input type="text" id="product_name" name="product_name" value="<?php echo $productToEdit ? htmlspecialchars($productToEdit['product_name']) : ''; ?>" required>
+            <!-- Logout -->
+            <a href="logout.php" class="btn btn-danger btn-sm">Log out</a>
+        </div>
+    </nav>
 
-        <label for="product_picture">Product Picture URL:</label>
-        <input type="text" id="product_picture" name="product_picture" value="<?php echo $productToEdit ? htmlspecialchars($productToEdit['picture']) : ''; ?>" required>
+    <div class="container mt-4">
+        <h1 class="mb-3">Welcome to the Dashboard</h1>
+        <p>Your User ID is: <strong><?php echo htmlspecialchars($_SESSION['admin_id']); ?></strong></p>
 
-        <label for="product_price">Price:</label>
-        <input type="number" step="0.01" id="product_price" name="product_price" value="<?php echo $productToEdit ? htmlspecialchars($productToEdit['price']) : ''; ?>" required>
+        <!-- Add / Update Product Form -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <?php echo $productToEdit ? 'Update Product' : 'Add New Product'; ?>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    <?php if ($productToEdit): ?>
+                        <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($productToEdit['id']); ?>">
+                    <?php endif; ?>
 
-        <label for="product_stocks">Stocks:</label>
-        <input type="number" id="product_stocks" name="product_stocks" value="<?php echo $productToEdit ? htmlspecialchars($productToEdit['stocks']) : ''; ?>" required>
+                    <div class="mb-3">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" class="form-control" name="product_name" value="<?php echo $productToEdit ? htmlspecialchars($productToEdit['product_name']) : ''; ?>" required>
+                    </div>
 
-        <label for="product_description">Description:</label>
-        <textarea id="product_description" name="product_description" required><?php echo $productToEdit ? htmlspecialchars($productToEdit['description']) : ''; ?></textarea>
+                    <div class="mb-3">
+                        <label class="form-label">Product Picture URL</label>
+                        <input type="text" class="form-control" name="product_picture" value="<?php echo $productToEdit ? htmlspecialchars($productToEdit['picture']) : ''; ?>" required>
+                    </div>
 
-        <input type="submit" name="<?php echo $productToEdit ? 'update_product' : 'add_product'; ?>" value="<?php echo $productToEdit ? 'Update Product' : 'Add Product'; ?>">
-    </form>
+                    <div class="mb-3">
+                        <label class="form-label">Price</label>
+                        <input type="number" step="0.01" class="form-control" name="product_price" value="<?php echo $productToEdit ? htmlspecialchars($productToEdit['price']) : ''; ?>" required>
+                    </div>
 
-    <h2>Product List</h2>
-    <table>
-        <tr>
-            <th>Product Name</th>
-            <th>Product Picture</th>
-            <th>Price</th>
-            <th>Stocks</th>
-            <th>Description</th>
-            <th>Actions</th>
-        </tr>
-        <?php while ($product = $result->fetch_assoc()): ?>
-            <tr>
-                <td><?php echo htmlspecialchars($product['product_name']); ?></td>
-                <td><img src="<?php echo htmlspecialchars($product['picture']); ?>" alt="Product Image"></td>
-                <td><?php echo htmlspecialchars($product['price']); ?></td>
-                <td><?php echo htmlspecialchars($product['stocks']); ?></td>
-                <td><?php echo htmlspecialchars($product['description']); ?></td>
-                <td class="action-buttons">
-                    <a href="?id=<?php echo $product['id']; ?>" style="background-color: green; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none;">
-                    <i class="fa-sharp fa-solid fa-pen-to-square"></i> Update
-                    </a>
-                    <a href="?delete_id=<?php echo $product['id']; ?>" onclick="return confirm('Are you sure you want to delete this product?');" style="background-color: red; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none;">
-                    <i class="fa-solid fa-trash"></i> Delete
-                    </a>
-                </td>
-            </tr>
-        <?php endwhile; ?>
-    </table>
+                    <div class="mb-3">
+                        <label class="form-label">Stocks</label>
+                        <input type="number" class="form-control" name="product_stocks" value="<?php echo $productToEdit ? htmlspecialchars($productToEdit['stocks']) : ''; ?>" required>
+                    </div>
 
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="product_description" required><?php echo $productToEdit ? htmlspecialchars($productToEdit['description']) : ''; ?></textarea>
+                    </div>
+
+                    <button type="submit" name="<?php echo $productToEdit ? 'update_product' : 'add_product'; ?>" class="btn btn-success">
+                        <?php echo $productToEdit ? 'Update Product' : 'Add Product'; ?>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Product List -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">Product List</div>
+            <div class="card-body">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Product Picture</th>
+                            <th>Price</th>
+                            <th>Stocks</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($product = $result->fetch_assoc()): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($product['product_name']); ?></td>
+                                <td><img src="<?php echo htmlspecialchars($product['picture']); ?>" class="img-fluid rounded" style="max-width: 100px;" alt="Product"></td>
+                                <td>₱<?php echo htmlspecialchars($product['price']); ?></td>
+                                <td><?php echo htmlspecialchars($product['stocks']); ?></td>
+                                <td><?php echo htmlspecialchars($product['description']); ?></td>
+                                <td>
+                                    <a href="?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-primary me-1">
+                                        <i class="fa-solid fa-pen-to-square"></i> Update
+                                    </a>
+                                    <a href="?delete_id=<?php echo $product['id']; ?>" onclick="return confirm('Are you sure you want to delete this product?');" class="btn btn-sm btn-danger">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

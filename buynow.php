@@ -35,6 +35,13 @@ $userStmt->execute();
 $userResult = $userStmt->get_result();
 $userDetails = $userResult->fetch_assoc();
 
+// After purchase is successful
+$deleteWishlist = "DELETE FROM wishlist WHERE user_id = ? AND product_id = ?";
+$stmt = $conn->prepare($deleteWishlist);
+$stmt->bind_param("ii", $userId, $productId);
+$stmt->execute();
+
+
 // Check if user details were found
 if (!$userDetails) {
     echo "User details not found.";

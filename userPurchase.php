@@ -43,15 +43,77 @@ $conn->close();
             color: #333;
             margin: 0;
             padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
         }
 
+        /* ✅ NAVBAR FIXED AT TOP */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #1f3b73;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: white;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            padding: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .navbar a:hover {
+            background-color: #15315b;
+            border-radius: 5px;
+        }
+        .burger-menu {
+            font-size: 1.8rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 150px;
+            z-index: 1001;
+        }
+        .dropdown-menu a {
+            display: block;
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+        }
+        .dropdown-menu a:hover {
+            background-color: #f0f0f0;
+        }
+        @media (max-width: 768px) {
+            .navbar h1,
+            .navbar a {
+                display: none;
+            }
+            .burger-menu {
+                display: block;
+            }
+        }
+
+        /* ✅ CONTENT AREA */
         .container {
             width: 100%;
             max-width: 800px;
+            margin: 80px auto 30px auto; /* add top margin so it doesn’t overlap navbar */
             padding: 20px;
             box-sizing: border-box;
         }
@@ -152,11 +214,9 @@ $conn->close();
                 flex-direction: column;
                 align-items: flex-start;
             }
-
             .product-image {
                 margin-bottom: 10px;
             }
-
             .total {
                 text-align: left;
             }
@@ -164,6 +224,22 @@ $conn->close();
     </style>
 </head>
 <body>
+    <!-- ✅ NAVBAR AT TOP -->
+    <div class="navbar">
+        <a href="userDashboard.php"><h1>SwiftShop</h1></a>
+        <div class="burger-menu" onclick="toggleDropdown()">
+            <i class="fas fa-bars"></i>
+            <div class="dropdown-menu">
+                <a href="Userprofile.php">Profile</a>
+                <a href="cart.php">My Cart</a>
+                <a href="wishlist.php">Wishlist</a>
+                <a href="userPurchase.php">My Purchase</a>
+                <a href="userLogout.php">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ CONTENT -->
     <div class="container">
         <h1>Purchase History</h1>
 
@@ -217,5 +293,12 @@ $conn->close();
             endif; 
             ?>
     </div>
+
+    <script>
+        function toggleDropdown() {
+            const menu = document.querySelector(".dropdown-menu");
+            menu.style.display = (menu.style.display === "block") ? "none" : "block";
+        }
+    </script>
 </body>
 </html>

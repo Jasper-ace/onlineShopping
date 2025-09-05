@@ -456,6 +456,7 @@ $stmt->close();
             <div class="dropdown-menu">
                 <a href="Userprofile.php">Profile</a>
                 <a href="cart.php">My Cart</a>
+                <a href="wishlist.php">Wishlist</a>
                 <a href="userPurchase.php">My Purchase</a>
                 <a href="userLogout.php">Logout</a>
             </div>
@@ -475,9 +476,29 @@ $stmt->close();
             <button onclick="changeQuantity(1)">+</button>
         </div>
         <div class="button-group">
-            <button onclick="addToCart(<?php echo $productId; ?>)">Add to Cart</button>
-            <button onclick="buyNow(<?php echo $productId; ?>)">Buy Now</button>
-        </div>
+    <?php if ($product['stocks'] > 0): ?>
+        <button onclick="addToCart(<?php echo $productId; ?>)">Add to Cart</button>
+        <button onclick="buyNow(<?php echo $productId; ?>)">Buy Now</button>
+    <?php else: ?>
+        <?php
+        // Check if already in wishlist
+        $userId = $_SESSION['user_id'];
+        $wishlistQuery = "SELECT id FROM wishlist WHERE user_id = ? AND product_id = ?";
+        $wishlistStmt = $conn->prepare($wishlistQuery);
+        $wishlistStmt->bind_param("ii", $userId, $productId);
+        $wishlistStmt->execute();
+        $wishlistResult = $wishlistStmt->get_result();
+        $inWishlist = $wishlistResult->num_rows > 0;
+        ?>
+        <button id="wishlistBtn" style="background:blue; color:white; padding:10px; border:none; border-radius:5px; cursor:pointer;"
+                onclick="toggleWishlist(<?php echo $productId; ?>, <?php echo $adminId; ?>)">
+            <i id="wishlistIcon" class="<?php echo $inWishlist ? 'fas' : 'far'; ?> fa-heart"
+               style="color: <?php echo $inWishlist ? 'red' : 'white'; ?>; margin-right:5px;"></i>
+            Wishlist
+        </button>
+    <?php endif; ?>
+</div>
+
         <p><a href="seller_profile.php?id=<?php echo $sellerId; ?>" class="seller-link">Shop: <?php echo htmlspecialchars($shopname); ?></a></p>
 
         <!-- Chat Icon (Font Awesome) -->
@@ -539,3 +560,33 @@ $stmt->close();
             <button type="submit">Submit Comment</button>
         </form>
     </div>
+    <script>
+        function toggleWishlist(productId, adminId) {
+    fetch("wishlist_toggle.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+            product_id: productId,
+            admin_id: adminId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const icon = document.getElementById("wishlistIcon");
+            if (data.action === "added") {
+                icon.classList.remove("far");
+                icon.classList.add("fas");
+                icon.style.color = "red";
+            } else {
+                icon.classList.remove("fas");
+                icon.classList.add("far");
+                icon.style.color = "white";
+            }
+        } else {
+            alert(data.message || "Something went wrong.");
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+    </script>

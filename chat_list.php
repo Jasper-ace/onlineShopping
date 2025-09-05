@@ -73,141 +73,87 @@ function timeAgo($timestamp) {
         }
     }
 }
-?>
-<!DOCTYPE html>
+?><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat List</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .chat-icon-container {
-            position: fixed;
-            top: 25px;
-            right: 10px;
-            font-size: 48px;
-            color: black;
-            text-decoration: none;
-        }
-
-        .chat-icon-container:hover {
-            color: blue;
-        }
-
-        .message-list {
-            margin-top: 10px;
-        }
-
-        .message {
-            background-color: #e9e9e9;
-            padding: 5px;
-            margin: 5px 0;
-            border-radius: 4px;
-        }
-
-        .message .user {
-            font-weight: bold;
-        }
-
-        .message .timestamp {
-            font-size: small;
-            color: gray;
-        }
-
-        .reply-btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 6px 12px;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            text-decoration: none;
-        }
-
-        .reply-btn:hover {
-            background-color: #45a049;
-        }
-    </style>
 </head>
-<body>
-    <h1>Chat List</h1>
-    <p>Select a product to see the chats:</p>
+<body class="bg-light">
 
-    <!-- Display products and users with their messages -->
-    <table>
-        <tr>
-            <th>Product Name</th>
-            <th>User</th>
-            <th>Message</th>
-            <th>Last Message Timestamp</th>
-            <th>Action</th>
-        </tr>
-        <?php
-        // Iterate through each product
-        while ($product = $productsResult->fetch_assoc()):
-            $productId = $product['id'];
-            
-            // Fetch messages for this product, grouped by user (last message for each user)
-            $stmt = $conn->prepare("SELECT u.user_id, u.fname, u.lname, m.message, m.timestamp, m.id AS message_id
-                                    FROM messages m
-                                    JOIN users u ON m.sender_id = u.user_id
-                                    WHERE m.product_id = ? 
-                                    ORDER BY u.user_id, m.timestamp DESC");
-            $stmt->bind_param("i", $productId);
-            $stmt->execute();
-            $usersResult = $stmt->get_result();
-            
-            // Group messages by user
-            $userMessages = [];
-            while ($user = $usersResult->fetch_assoc()) {
-                $userId = $user['user_id'];
-                if (!isset($userMessages[$userId])) {
-                    $userMessages[$userId] = $user;
-                }
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Chat List</h1>
+        <a href="dashboard.php" class="btn btn-outline-primary">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    <p class="text-muted">Select a product to see the chats:</p>
+
+    <?php
+    // Iterate through each product
+    while ($product = $productsResult->fetch_assoc()):
+        $productId = $product['id'];
+
+        // Fetch messages for this product, grouped by user (last message for each user)
+        $stmt = $conn->prepare("SELECT u.user_id, u.fname, u.lname, m.message, m.timestamp, m.id AS message_id
+                                FROM messages m
+                                JOIN users u ON m.sender_id = u.user_id
+                                WHERE m.product_id = ? 
+                                ORDER BY u.user_id, m.timestamp DESC");
+        $stmt->bind_param("i", $productId);
+        $stmt->execute();
+        $usersResult = $stmt->get_result();
+
+        // Group messages by user
+        $userMessages = [];
+        while ($user = $usersResult->fetch_assoc()) {
+            $userId = $user['user_id'];
+            if (!isset($userMessages[$userId])) {
+                $userMessages[$userId] = $user;
             }
+        }
+    ?>
 
-            // Display the messages for each user for this product
-            foreach ($userMessages as $userMessage):
-        ?>
-            <tr>
-                <td><?php echo htmlspecialchars($product['product_name']); ?></td>
-                <td><strong><?php echo htmlspecialchars($userMessage['fname'] . ' ' . $userMessage['lname']); ?>:</strong></td>
-                <td><?php echo htmlspecialchars($userMessage['message']); ?></td>
-                <td><?php echo timeAgo($userMessage['timestamp']); ?></td>
-                <td>
-                    <!-- Reply button that redirects to admin_reply.php with product_id, message_id, and sender_id as query parameters -->
-                    <a href="admin_reply.php?product_id=<?php echo $productId; ?>&message_id=<?php echo $userMessage['message_id']; ?>&sender_id=<?php echo $userMessage['user_id']; ?>" class="reply-btn">Reply</a>
-                </td>
-            </tr>
-        <?php endforeach; endwhile; ?>
-    </table>
+    <!-- Product Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-success text-white">
+            <i class="fa-solid fa-box"></i> 
+            <?php echo htmlspecialchars($product['product_name']); ?>
+        </div>
+        <ul class="list-group list-group-flush">
+            <?php foreach ($userMessages as $userMessage): ?>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">
+                            <i class="fa-solid fa-user"></i> 
+                            <?php echo htmlspecialchars($userMessage['fname'] . ' ' . $userMessage['lname']); ?>
+                        </div>
+                        <small class="text-muted">
+                            <?php echo htmlspecialchars($userMessage['message']); ?>
+                        </small><br>
+                        <span class="badge bg-secondary mt-1">
+                            <?php echo timeAgo($userMessage['timestamp']); ?>
+                        </span>
+                    </div>
+                    <a href="admin_reply.php?product_id=<?php echo $productId; ?>&message_id=<?php echo $userMessage['message_id']; ?>&sender_id=<?php echo $userMessage['user_id']; ?>" 
+                       class="btn btn-sm btn-success">
+                        <i class="fa-solid fa-reply"></i> Reply
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+
+    <?php endwhile; ?>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

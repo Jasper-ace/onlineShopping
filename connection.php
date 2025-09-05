@@ -1,9 +1,9 @@
 <?php
     $user_name = "root";
-    $password = "127956";  
+    $password = "1279";  
     $database = "onlineshopping";
     $server = "localhost";
-    $port = "3307";
+    $port = "3306";
 
     $conn = new mysqli($server, $user_name, $password, $database, $port);
 

@@ -148,19 +148,26 @@ $conn->close();
         <h2>Products by <?php echo htmlspecialchars($seller['shopname']); ?>:</h2>
 
         <div class="product-list">
-            <?php if ($products->num_rows > 0): ?>
-                <?php while ($product = $products->fetch_assoc()): ?>
-                    <a href="product_detail.php?id=<?php echo $product['id']; ?>" class="product-item">
-                        <img src="<?php echo htmlspecialchars($product['picture']); ?>" alt="Product Image">
-                        <h3><?php echo htmlspecialchars($product['product_name']); ?></h3>
-                        <p class="price">₱<?php echo number_format($product['price'], 2); ?></p>
-                        <p>In Stock: <?php echo htmlspecialchars($product['stocks']); ?></p>
-                    </a>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <p>No products found.</p>
-            <?php endif; ?>
-        </div>
+    <?php if ($products->num_rows > 0): ?>
+        <?php while ($product = $products->fetch_assoc()): ?>
+            <a href="product_detail.php?id=<?php echo $product['id']; ?>" class="product-item">
+                <img src="<?php echo htmlspecialchars($product['picture']); ?>" alt="Product Image">
+                <h3>
+                    <?php
+                    $words = explode(' ', $product['product_name']);
+                    $shortName = implode(' ', array_slice($words, 0, 8));
+                    echo htmlspecialchars($shortName);
+                    ?>
+                </h3>
+                <p class="price">₱<?php echo number_format($product['price'], 2); ?></p>
+                <p>In Stock: <?php echo htmlspecialchars($product['stocks']); ?></p>
+            </a>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <p>No products found.</p>
+    <?php endif; ?>
+</div>
+
     </div>
 
 </body>

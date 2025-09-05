@@ -46,6 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo "Invalid request.";
     exit;
 }
+// After purchase is successful
+$deleteWishlist = "DELETE FROM wishlist WHERE user_id = ? AND product_id = ?";
+$stmt = $conn->prepare($deleteWishlist);
+$stmt->bind_param("ii", $userId, $productId);
+$stmt->execute();
+
 ?>
 
 <!DOCTYPE html>

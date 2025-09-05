@@ -368,6 +368,16 @@ $conn->close();
             color: #009688;
             text-decoration: underline;
         }
+        /* Out of stock styling */
+.product-card.out-of-stock {
+    filter: grayscale(100%);
+    opacity: 0.6;
+}
+.product-card.out-of-stock:hover {
+    transform: none; /* prevent hover lift */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* keep normal shadow */
+}
+
     </style>
 
     <script>
@@ -494,6 +504,7 @@ $conn->close();
             <div class="dropdown-menu">
                 <a href="Userprofile.php">Profile</a>
                 <a href="cart.php">My Cart</a>
+                <a href="wishlist.php">Wishlist</a>
                 <a href="userPurchase.php">My Purchase</a>
                 <a href="userLogout.php">Logout</a>
             </div>
@@ -501,21 +512,30 @@ $conn->close();
     </div>
 
 
-
     <div class="container">
-        <?php if (count($products) > 0): ?>
-            <?php foreach ($products as $product): ?>
-                <a class="product-card" href="product_detail.php?id=<?= $product['id'] ?>">
-                    <img src="<?= $product['picture'] ?>" alt="Product Image">
-                    <h3><?= htmlspecialchars($product['product_name']) ?></h3>
-                    <p class="price">₱<?= number_format($product['price'], 2) ?></p>
-                    <p>In Stock: <?= $product['stocks'] ?></p>
-                </a>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <p>No products found.</p>
-        <?php endif; ?>
-    </div>
+    <?php if (count($products) > 0): ?>
+        <?php foreach ($products as $product): ?>
+            <?php 
+                // Limit product name to 8 words
+                $words = explode(" ", $product['product_name']);
+                $shortName = implode(" ", array_slice($words, 0, 8));
+                if (count($words) > 8) {
+                    $shortName .= "...";
+                }
+                $stockClass = ($product['stocks'] == 0) ? 'out-of-stock' : '';
+            ?>
+            <a class="product-card <?= $stockClass ?>" href="product_detail.php?id=<?= $product['id'] ?>">
+        <img src="<?= $product['picture'] ?>" alt="Product Image">
+        <h3><?= htmlspecialchars($shortName) ?></h3>
+        <p class="price">₱<?= number_format($product['price'], 2) ?></p>
+        <p>In Stock: <?= $product['stocks'] ?></p>
+    </a>
+<?php endforeach; ?>
+    <?php else: ?>
+        <p>No products found.</p>
+    <?php endif; ?>
+</div>
+
     <script defer>
         document.body.appendChild(document.createElement('div')).setAttribute('id', 'chatBubbleRoot');
         window.agx = '671a385430a353347a33b0066PyiGjWgx7/XJ+kgkiNBFw==|hkep9PlY4SHf8R25NAscyeYuVjePtuUabWt+50pGyc8=';

@@ -53,6 +53,13 @@ if ($order_id > 0) {
     $error_message = "Invalid order ID.";
 }
 
+// After purchase is successful
+$deleteWishlist = "DELETE FROM wishlist WHERE user_id = ? AND product_id = ?";
+$stmt = $conn->prepare($deleteWishlist);
+$stmt->bind_param("ii", $userId, $productId);
+$stmt->execute();
+
+
 // Close the database connection
 $conn->close();
 ?>

@@ -52,164 +52,86 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Sign-Up</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-m5FqR6VMuIZu8hxvPZZRhtsDZHZBWvWn9bHs+7AuI7Nm5z2kbyGauAfLKhcoO9W6EKxGdMDPhqkmxupflEb1zQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            padding: 50px 50px 50px 35px; 
-        }
-
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-
-        label {
-            font-weight: bold;
-            margin-top: 10px;
-            display: block;
-            color: #555;
-        }
-
-        input[type="text"],
-        input[type="date"],
-        input[type="password"],
-        input[type="submit"] {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        input[type="submit"] {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #218838;
-        }
-
-        .eye-icon {
-            cursor: pointer;
-            position: absolute;
-            margin-left: -30px;
-            margin-top: 10px;
-            font-size: 18px;
-            color: #555;
-        }
-
-        .error {
-            color: red;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .success {
-            color: green;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .form-group {
-            position: relative;
-        }
-
-        .link {
-            text-align: center;
-            margin-top: 20px;
-            color: #007bff;
-            cursor: pointer;
-            text-decoration: none; 
-        }
-
-        .link a {
-            text-decoration: none; 
-            color: #007bff; 
-        }
-
-        .link:hover a {
-            text-decoration: underline; 
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Sign-Up</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
-    <div class="container">
-        <h2>Admin Sign-Up Page</h2>
-        <?php if ($message): ?>
-            <div><?php echo $message; ?></div>
-        <?php endif; ?>
-        
-        <form method="POST" action="">
-            <label for="shopname">Shop Name:</label>
-            <input type="text" id="shopname" name="shopname" required>
+<body class="bg-light d-flex justify-content-center align-items-center vh-100">
 
-            <label for="fname">First Name:</label>
-            <input type="text" id="fname" name="fname" required>
+  <div class="card shadow-lg p-4" style="width: 28rem;">
+    <h2 class="text-center mb-4">Admin Sign-Up</h2>
 
-            <label for="mname">Middle Name:</label>
-            <input type="text" id="mname" name="mname">
+    <?php if ($message): ?>
+      <div class="alert alert-info text-center"><?php echo $message; ?></div>
+    <?php endif; ?>
 
-            <label for="lname">Last Name:</label>
-            <input type="text" id="lname" name="lname" required>
+    <form method="POST" action="">
+      <div class="mb-3">
+        <label for="shopname" class="form-label">Shop Name</label>
+        <input type="text" class="form-control" id="shopname" name="shopname" required>
+      </div>
 
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
+      <div class="mb-3">
+        <label for="fname" class="form-label">First Name</label>
+        <input type="text" class="form-control" id="fname" name="fname" required>
+      </div>
 
-            <label for="birthdate">Birthdate:</label>
-            <input type="date" id="birthdate" name="birthdate" required>
+      <div class="mb-3">
+        <label for="mname" class="form-label">Middle Name</label>
+        <input type="text" class="form-control" id="mname" name="mname">
+      </div>
 
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-                <i class="fa-solid fa-eye eye-icon" onclick="togglePasswordVisibility('password')"></i>
-            </div>
+      <div class="mb-3">
+        <label for="lname" class="form-label">Last Name</label>
+        <input type="text" class="form-control" id="lname" name="lname" required>
+      </div>
 
-            <div class="form-group">
-                <label for="repeat_password">Repeat Password:</label>
-                <input type="password" id="repeat_password" name="repeat_password" required>
-                <i class="fa-solid fa-eye eye-icon" onclick="togglePasswordVisibility('repeat_password')"></i>
-            </div>
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+      </div>
 
-            <input type="submit" value="Sign Up">
-            <div class="link"><a href="adminLogin.php">Have an account? Sign In</a></div> 
-        </form>
-    </div>
+      <div class="mb-3">
+        <label for="birthdate" class="form-label">Birthdate</label>
+        <input type="date" class="form-control" id="birthdate" name="birthdate" required>
+      </div>
 
-    <script>
-        function togglePasswordVisibility(inputId) {
-            var input = document.getElementById(inputId);
-            if (input.type === "password") {
-                input.type = "text";
-            } else {
-                input.type = "password";
-            }
-        }
-    </script>
+      <div class="mb-3 position-relative">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+        <i class="fa-solid fa-eye position-absolute top-50 end-0 translate-middle-y me-3 text-secondary"
+           style="cursor:pointer;" onclick="togglePasswordVisibility('password')"></i>
+      </div>
+
+      <div class="mb-3 position-relative">
+        <label for="repeat_password" class="form-label">Repeat Password</label>
+        <input type="password" class="form-control" id="repeat_password" name="repeat_password" required>
+        <i class="fa-solid fa-eye position-absolute top-50 end-0 translate-middle-y me-3 text-secondary"
+           style="cursor:pointer;" onclick="togglePasswordVisibility('repeat_password')"></i>
+      </div>
+
+      <button type="submit" class="btn btn-success w-100">Sign Up</button>
+      <p class="text-center mt-3">
+        <a href="adminLogin.php" class="text-decoration-none">Have an account? Sign In</a>
+      </p>
+    </form>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function togglePasswordVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      input.type = input.type === "password" ? "text" : "password";
+    }
+  </script>
 </body>
 </html>

@@ -84,152 +84,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply'])) {
 
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Comment</title>
-    <link rel="stylesheet" href="styles.css"> 
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5; 
-            margin: 0; 
-        }
-        
-        .container {
-            max-width: 800px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            width: 100%; 
-        }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        .comment-item {
-            display: flex;
-            padding: 10px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .comment-item img {
-            width: 80px;
-            height: auto; 
-            margin-right: 15px;
-            border-radius: 4px; 
-        }
-
-        .comment-content {
-            flex: 1; 
-        }
-
-        .bold {
-            font-weight: bold; 
-        }
-
-        .back-button {
-            margin-top: 20px;
-            text-decoration: none; 
-            color: #2980b9;
-            font-weight: bold; 
-        }
-
-        .back-button:hover {
-            text-decoration: underline; 
-        }
-
-        .reply-form {
-            margin-top: 20px; 
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 8px; 
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
-        }
-
-        .reply-form textarea {
-            width: 97%; 
-            height: 100px; 
-            padding: 10px; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            resize: none; 
-            font-family: 'Roboto', sans-serif; 
-        }
-
-        .reply-button {
-            margin-top: 10px; 
-            padding: 10px 15px; 
-            background-color: #2980b9; 
-            color: #fff; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-        }
-
-        .reply-button:hover {
-            background-color: #1f6691; 
-        }
-
-        .reply-item {
-            border-top: 1px solid #e0e0e0; 
-            padding: 10px; 
-            margin-top: 10px; 
-        }
-
-        .reply-item .bold {
-            color: #2980b9; 
-        }
-    </style>
+    <!-- Optional: Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-<body>
-    <div class="container">
-        <h1>Comment Details</h1>
-        <div class="comment-item">
-            <img src="<?php echo htmlspecialchars($commentData['picture']); ?>" alt="Product Image">
-            <div class="comment-content">
-                <span class="bold">Product: <?php echo htmlspecialchars($commentData['product_name']); ?></span><br>
-                <span class="bold">Comment By: <?php echo htmlspecialchars($commentData['username']); ?></span><br>
-                <p><?php echo nl2br(htmlspecialchars($commentData['comment'])); ?></p>
-                <span>Date: <?php echo date('Y-m-d H:i:s', strtotime($commentData['comment_date'])); ?></span>
+<body class="bg-light">
+
+    <div class="container my-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white text-center">
+                <h2 class="mb-0">Comment Details</h2>
+            </div>
+            <div class="card-body">
+                <!-- Comment Item -->
+                <div class="d-flex mb-4">
+                    <img src="<?php echo htmlspecialchars($commentData['picture']); ?>" alt="Product Image" class="img-fluid rounded me-3" style="width: 120px; height: auto;">
+                    <div>
+                        <h5 class="fw-bold">Product: <?php echo htmlspecialchars($commentData['product_name']); ?></h5>
+                        <h6 class="fw-bold">Comment By: <?php echo htmlspecialchars($commentData['username']); ?></h6>
+                        <p><?php echo nl2br(htmlspecialchars($commentData['comment'])); ?></p>
+                        <small class="text-muted">Date: <?php echo date('Y-m-d H:i:s', strtotime($commentData['comment_date'])); ?></small>
+                    </div>
+                </div>
+
+                <!-- Replies -->
+                <h4 class="mb-3">Replies:</h4>
+                <?php if ($repliesResult->num_rows > 0): ?>
+                    <?php while ($replyData = $repliesResult->fetch_assoc()): ?>
+                        <div class="card mb-3 shadow-sm">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-primary"><?php echo htmlspecialchars($replyData['admin_name']); ?>:</h6>
+                                <p><?php echo nl2br(htmlspecialchars($replyData['reply'])); ?></p>
+                                <small class="text-muted">Date: <?php echo date('Y-m-d H:i:s', strtotime($replyData['reply_date'])); ?></small>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>No replies yet.</p>
+                <?php endif; ?>
+
+                <!-- Reply Form -->
+                <div class="card mt-4 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Reply to Comment</h5>
+                        <form method="POST" action="">
+                            <div class="mb-3">
+                                <textarea class="form-control" name="reply" rows="4" placeholder="Type your reply here..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-reply"></i> Submit Reply</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Back Button -->
+                <div class="mt-4 text-center">
+                    <a href="notifications.php" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Back to Notifications</a>
+                </div>
             </div>
         </div>
-
-        <h3>Replies:</h3>
-        <?php if ($repliesResult->num_rows > 0): ?>
-            <?php while ($replyData = $repliesResult->fetch_assoc()): ?>
-                <div class="reply-item">
-                    <span class="bold"><?php echo htmlspecialchars($replyData['admin_name']); ?>:</span><br>
-                    <p><?php echo nl2br(htmlspecialchars($replyData['reply'])); ?></p>
-                    <span>Date: <?php echo date('Y-m-d H:i:s', strtotime($replyData['reply_date'])); ?></span>
-                </div>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <p>No replies yet.</p>
-        <?php endif; ?>
-
-        <!-- Move reply form here -->
-        <div class="reply-form">
-            <h3>Reply to Comment</h3>
-            <form method="POST" action="">
-                <textarea name="reply" placeholder="Type your reply here..." required></textarea>
-                <button type="submit" class="reply-button">Submit Reply</button>
-            </form>
-        </div>
-        <br>
-        <a href="notifications.php" class="back-button">Back to Notifications</a>
     </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

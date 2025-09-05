@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             display: flex; 
             height: 100vh; 
             margin: 0; 
-            background-image: url('https://cdn.shopify.com/s/files/1/0070/7032/articles/ecommerce_20shopping_20cart_4c343e41-1041-49d3-bca8-3d7d1aa06d90.png?v=1729263457&originalWidth=1848&originalHeight=782&width=1600');
+            background-image: url('image/vec63135.jpg');
             background-size: cover; 
             background-position: left; 
             background-repeat: no-repeat; 
@@ -113,6 +113,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
             margin-top: 10px;
         }
+        .forgot-password {
+    margin: 5px 0 15px;
+    text-align: right;
+}
+.forgot-password a {
+    color: #fff;
+    text-decoration: none;
+}
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+
     </style>
 </head>
 <body>
@@ -126,15 +138,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
 
+        <!-- Forgot Password Link -->
+        <div class="forgot-password">
+            <a href="forgot-password.php">Forgot Password?</a>
+        </div>
+
         <input type="submit" value="Sign In">
     </form>
+
     <div class="account-link">
         <p>Don't have an account? <a href="signup.php">Create one</a></p>
     </div>
+
     <?php if (!empty($message)): ?>
         <div class="error-message"><?php echo htmlspecialchars($message); ?></div>
     <?php endif; ?>
 </div>
+
 
 </body>
 </html>

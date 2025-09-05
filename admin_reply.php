@@ -70,95 +70,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_message'])) {
 
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Chat - Product: <?php echo htmlspecialchars($product['product_name']); ?></title>
+    <title>Admin Chat - <?php echo htmlspecialchars($product['product_name']); ?></title>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
-
-        h1 {
-            color: #333;
-        }
-
         .chat-container {
             margin-top: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #ddd;
         }
-
         .message {
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #f1f1f1;
-            border-radius: 5px;
+            padding: 10px 15px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
         }
-
-        .message.admin {
-            background-color: #d4edda;
-            text-align: right;
-        }
-
         .message.user {
             background-color: #cce5ff;
-            text-align: left;
+            align-self: flex-start;
         }
-
-        .reply-form {
-            margin-top: 20px;
+        .message.admin {
+            background-color: #d4edda;
+            align-self: flex-end;
+            text-align: right;
         }
-
-        .reply-form textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            resize: vertical;
-        }
-
-        .reply-form button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .reply-form button:hover {
-            background-color: #45a049;
+        .chat-wrapper {
+            display: flex;
+            flex-direction: column;
         }
     </style>
 </head>
 
-<body>
+<body class="bg-light">
 
-    <h1>Chat with User: <?php echo htmlspecialchars($product['product_name']); ?></h1>
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4">
+            <i class="fa-solid fa-comments"></i> Chat - <?php echo htmlspecialchars($product['product_name']); ?>
+        </h1>
+        <a href="chat_list.php" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left"></i> Back to Chat List
+        </a>
+    </div>
 
-    <div class="chat-container">
-        <!-- Display all messages (user and admin) for the selected product and specific sender -->
+    <!-- Chat Messages -->
+    <div class="chat-container d-flex flex-column">
         <?php while ($chatMessage = $chatMessages->fetch_assoc()): ?>
             <div class="message <?php echo htmlspecialchars($chatMessage['role']); ?>">
-                <strong><?php echo htmlspecialchars($chatMessage['fname'] . ' ' . $chatMessage['lname']); ?>:</strong><br>
-                <?php echo nl2br(htmlspecialchars($chatMessage['message'])); ?><br>
-                <small>Sent on: <?php echo htmlspecialchars($chatMessage['timestamp']); ?></small>
+                <div class="fw-bold mb-1">
+                    <?php echo htmlspecialchars($chatMessage['fname'] . ' ' . $chatMessage['lname']); ?>
+                </div>
+                <div><?php echo nl2br(htmlspecialchars($chatMessage['message'])); ?></div>
+                <small class="text-muted d-block mt-1">
+                    <i class="fa-regular fa-clock"></i>
+                    <?php echo htmlspecialchars($chatMessage['timestamp']); ?>
+                </small>
             </div>
         <?php endwhile; ?>
     </div>
 
-    <div class="reply-form">
-        <form action="admin_reply.php?product_id=<?php echo $productId; ?>&message_id=<?php echo $messageId; ?>&sender_id=<?php echo $senderId; ?>" method="POST">
-            <textarea name="reply_message" rows="4" placeholder="Type your reply here..." required></textarea><br>
-            <button type="submit">Reply</button>
-        </form>
+    <!-- Reply Form -->
+    <div class="card mt-4 shadow-sm">
+        <div class="card-body">
+            <form action="admin_reply.php?product_id=<?php echo $productId; ?>&message_id=<?php echo $messageId; ?>&sender_id=<?php echo $senderId; ?>" method="POST">
+                <div class="mb-3">
+                    <textarea name="reply_message" rows="3" class="form-control" placeholder="Type your reply here..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <i class="fa-solid fa-paper-plane"></i> Send Reply
+                </button>
+            </form>
+        </div>
     </div>
+</div>
 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    window.onload = loadMessages;
+    setInterval(loadMessages, 3000); // auto refresh every 3s
+</script>
 </body>
 </html>

@@ -271,11 +271,14 @@ body {
         <div class="burger-menu" onclick="toggleDropdown()">
             <i class="fas fa-bars"></i>
             <div class="dropdown-menu">
+                <a href="Userprofile.php">Profile</a>
                 <a href="cart.php">My Cart</a>
+                <a href="wishlist.php">Wishlist</a>
                 <a href="userPurchase.php">My Purchase</a>
                 <a href="userLogout.php">Logout</a>
             </div>
         </div>
+    </div>
     </div>
     <div class="container">
         <h1><?php echo htmlspecialchars($user['fname']); ?>'s Profile</h1>
